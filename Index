@@ -1,0 +1,200 @@
+@model PageModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section id="content" class="site_content">
+    <div class="container">
+        <div class="row">
+            <h4 class="page-title screen-reader-text">Blog Posts</h4>
+            <main class="main_content col-md-9 pull-left">
+                <div class="blog_posts_wrapper blog_posts_list clearfix  default_blog_style narrow_content_width postAppend">
+                    <div class="ajax_content_container"></div>
+                </div> <!-- .blog_posts_wrapper -->
+            </main><!-- .main_content -->
+            <aside class="side_content widget_area col-md-3 pull-right">
+                <h3 class="screen-reader-text">Site Sidebar</h3>
+                <div id="secondary" class="secondary">
+
+                    <div id="widget-area" class="widget-area" role="complementary">
+                        <div id="categories-4" class="widget_container widget_content widget widget_categories clearfix">
+                            <h4 class="widget_title title"><span class="page_header_title">Kategoriler</span></h4>
+                            <ul class="cat"></ul>
+                        </div><div id="postlist-widget-5" class="widget_container widget_content widget asalah-postlist-widget clearfix">
+                            <h4 class="widget_title title">
+                                <span class="page_header_title">Son Yazılar</span>
+                            </h4>
+                            <div class="asalah_post_list_widget">
+                                <ul class="post_list"></ul>
+                            </div>
+                        </div>
+                        <div id="tag_cloud-3" class="widget_container widget_content widget widget_tag_cloud clearfix">
+                            <h4 class="widget_title title"><span class="page_header_title">Tags</span></h4>
+                            <div class="tagcloud">
+                            </div>
+                        </div><div id="search-4" class="widget_container widget_content widget widget_search clearfix">
+                            <form role="search" class="search-form" method="get" action="/">
+                                <label>
+                                    <span class="screen-reader-text">Ara:</span>
+                                    <input type="search" class="search-field" placeholder="Ara ..." value="" name="s" title="Search for:">
+                                </label>
+                                <i class="search_submit_icon fa fa-search"><input type="submit" class="search-submit" value=""></i>
+                            </form>
+                        </div>
+                    </div><!-- .widget-area -->
+
+                </div><!-- .secondary -->
+
+            </aside>
+        </div> <!-- .row -->
+    </div> <!-- .container -->
+</section>
+<script src="/scripts/jquery-1.10.2.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        getTag();
+        getCategories();
+        getLatestPosts();
+        getSideLatestPosts();
+    });
+
+    function getTag() {
+        $.ajax({
+            url: "/Home/GetTags",
+            type: "GET",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            error: function (response) {
+                alert(response.responseText);
+            },
+            success: function (response) {
+                $(response).each(function () {
+                    $('.tagcloud').append("<a href=' " + this.Name + " ' class='tag-link-7' title='4 topics' style='font-size: 18.266666666667pt;'> " + this.Name + " </a>");
+                });
+            }
+        });
+    }
+
+    function getCategories() {
+        $.ajax({
+            url: "/Home/GetCategories",
+            type: "GET",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            error: function (response) {
+                alert(response.responseText);
+            },
+            success: function (response) {
+                $(response).each(function () {
+                    $('.cat').append("<li class=\"cat-item cat-item-2\"><a href=\"" + this.Lang + " \"> " + this.Name + " </a></li>");
+                });
+            }
+        });
+    }
+
+    function getSideLatestPosts() {
+        $.ajax({
+            url: "/Home/GetSideLatestPosts",
+            type: "GET",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            error: function (response) {
+                alert(response.responseText);
+            },
+            success: function (response) {
+                $(response).each(function () {
+                    $('.post_list').append("<li class=\"post_item clearfix\"><div class=\"post_thumbnail_wrapper\"><a href=\"" + this.Lang + "\" title=\"" + this.Title + "\"><img width=\"50\" height=\"50\" src=\"/Content/images/Author-150x150.jpg\" class=\"img-responsive wp-post-image\" alt=\"Resturant-Employe\r\"></a></div><div class=\"post_info_wrapper\"><h5 class=\"title post_title\"><a href=\"" + this.Lang + "\" title=\"Restaurant Employer Read Clients Orders On His iPad\"> " + this.Title + " </a></h5><span class=\"post_meta_item post_meta_time post_time\">" + this.PostType + "</span></div></li>");
+                });
+            }
+        });
+    }
+
+    var pageSize = 5;
+    var pageIndex = 0;
+    function getLatestPosts() {
+        var rakam = 0;
+        if (rakam == 0) {
+            $("div#divLoading").addClass('show');
+            $.ajax({
+                url: "/Home/GetLatestPosts",
+                async: false,
+                data: { "pageindex": pageIndex, "pagesize": pageSize },
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                error: function (response) {
+                    alert(response.responseText);
+                },
+                success: function (response) {
+                    if (response != null) {
+                        for (var i = 0; i < response.length; i++) {
+                            if (response[i].PostMimeType == null) {
+                                var miniPic = "/Content/images/null.png";
+                            }
+                            else {
+                                var miniPic = response[i].PostMimeType;
+                            }
+                            //$('.post_list').append("<li class=\"post_item clearfix\"><div class=\"post_thumbnail_wrapper\"><a href=\"" + response[i].Lang + "\" title=\"" + response[i].Title + "\"><img width=\"50\" height=\"50\" src=\"/Content/images/Author-150x150.jpg\" class=\"img-responsive wp-post-image\" alt=\"Resturant-Employe\r\"></a></div><div class=\"post_info_wrapper\"><h5 class=\"title post_title\"><a href=\"" + response[i].Lang + "\" title=\"Restaurant Employer Read Clients Orders On His iPad\"> " + response[i].Title + " </a></h5><span class=\"post_meta_item post_meta_time post_time\">" + response[i].PostType + "</span></div></li>");
+                            $('.postAppend').append("<article id=\"post-60\" class=\"blog_post_container post-60 post type-post status-publish format-image has-post-thumbnail hentry category-life-style category-photograph tag-image post_format-post-format-image\"><div class=\"blog_post clearfix\">"
+                                + "<div class=\"blog_post_title\"><h2 class=\"entry-title title post_title\"><a href=\"" + response[i].Lang + "\" rel=\"bookmark\">" + response[i].Title + "</a></h2></div><div class=\"blog_post_meta clearfix\">"
+                                + "<span class=\"blog_meta_item blog_meta_format entry_format\"><a href=\"" + response[i].Lang + "\"><i class=\"fa fa-camera-retro\"></i></a></span>"
+                               + " <span class=\"blog_meta_item blog_meta_category\">Kategori <a href=\"" + response[i].Lang + "\" rel=\"category tag\">" + response[i].PostMimeType + "</a>"
+                          + "</span><span class=\"blog_meta_item blog_meta_tags\">Tags <a href=\"https://ahmad.works/writing/tag/image/\" rel=\"tag\">" + response[i].PostMimeType + "</a></span><span class=\"blog_meta_item blog_meta_date\">"
+                            + "    <span class=\"screen-reader-text\"></span><time class=\"entry-date published updated\" datetime=\"2015-05-17T14:47:11+00:00\"> " + response[i].PostType + " </time></span><span class=\"blog_meta_item blog_meta_comments\">"
+                            + " <a href=\"" + response[i].Lang + "\">Yorum yap</a></span><span class=\"blog_meta_item blog_meta_author\"><span class=\"author vcard\">"
+                            + " <a class=\"meta_author_avatar_url\" href=\"" + response[i].Lang + "\"><img src=\"/Content/images/Author-150x150.jpg\" width=\"25\" height=\"25\" alt=\"Serhat ÜR\" "
+                            + " class=\"avatar avatar-25 wp-user-avatar wp-user-avatar-25 alignnone photo\" /></a> <a class=\"url fn n\" href=\"" + response[i].Lang + "\">Serhat ÜR</a></span></span></div>"
+                            + "<div class=\"entry-content blog_post_text blog_post_description\">" + response[i].Content.substring(0, 100) + " "
+                            + " <a href=\"" + response[i].Lang + "\" class=\"more_link more_link_dots\"> &hellip; </a></p></div><div class=\"blog_post_control clearfix\"><div class=\"blog_post_control_item blog_post_readmore\"><a href=\"" + response[i].Lang + "\" class=\"read_more_link\">Okumaya devam et</a></div></a></span></div></div></div></article>");
+                        }
+                        pageIndex++;
+                    }
+                    $("div#divLoading").addClass('show').remove();
+                }
+            });
+            rakam++;
+        }
+        $(window).scroll(function () {
+            if ($(window).scrollTop() == $(document).height() - $(window).height()) {
+                $("div#divLoading").addClass('show');
+                $.ajax({
+                    url: "/Home/GetLatestPosts",
+                    async: false,
+                    data: { "pageindex": pageIndex, "pagesize": pageSize },
+                    type: "GET",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    error: function (response) {
+                        alert(response.responseText);
+                    },
+                    success: function (response) {
+                        if (response != null) {
+                            for (var i = 0; i < response.length; i++) {
+                                if (response[i].PostMimeType == null) {
+                                    var miniPic = "/Content/images/null.png";
+                                }
+                                else {
+                                    var miniPic = response[i].PostMimeType;
+                                }
+                                //$('.post_list').append("<li class=\"post_item clearfix\"><div class=\"post_thumbnail_wrapper\"><a href=\"" + response[i].Lang + "\" title=\"" + response[i].Title + "\"><img width=\"50\" height=\"50\" src=\"/Content/images/Author-150x150.jpg\" class=\"img-responsive wp-post-image\" alt=\"Resturant-Employe\r\"></a></div><div class=\"post_info_wrapper\"><h5 class=\"title post_title\"><a href=\"" + response[i].Lang + "\" title=\"Restaurant Employer Read Clients Orders On His iPad\"> " + response[i].Title + " </a></h5><span class=\"post_meta_item post_meta_time post_time\">" + response[i].PostType + "</span></div></li>");
+                                $('.postAppend').append("<article id=\"post-60\" class=\"blog_post_container post-60 post type-post status-publish format-image has-post-thumbnail hentry category-life-style category-photograph tag-image post_format-post-format-image\"><div class=\"blog_post clearfix\">"
+                                    + "<div class=\"blog_post_title\"><h2 class=\"entry-title title post_title\"><a href=\"" + response[i].Lang + "\" rel=\"bookmark\">" + response[i].Title + "</a></h2></div><div class=\"blog_post_meta clearfix\">"
+                                    + "<span class=\"blog_meta_item blog_meta_format entry_format\"><a href=\"" + response[i].Lang + "\"><i class=\"fa fa-camera-retro\"></i></a></span>"
+                                   + " <span class=\"blog_meta_item blog_meta_category\">Kategori <a href=\"" + response[i].Lang + "\" rel=\"category tag\">" + response[i].PostMimeType + "</a>"
+                              + "</span><span class=\"blog_meta_item blog_meta_tags\">Tags <a href=\"https://ahmad.works/writing/tag/image/\" rel=\"tag\">" + response[i].PostMimeType + "</a></span><span class=\"blog_meta_item blog_meta_date\">"
+                                + "    <span class=\"screen-reader-text\"></span><time class=\"entry-date published updated\" datetime=\"2015-05-17T14:47:11+00:00\"> " + response[i].PostType + " </time></span><span class=\"blog_meta_item blog_meta_comments\">"
+                                + " <a href=\"" + response[i].Lang + "\">Yorum yap</a></span><span class=\"blog_meta_item blog_meta_author\"><span class=\"author vcard\">"
+                                + " <a class=\"meta_author_avatar_url\" href=\"" + response[i].Lang + "\"><img src=\"/Content/images/Author-150x150.jpg\" width=\"25\" height=\"25\" alt=\"Serhat ÜR\" "
+                                + " class=\"avatar avatar-25 wp-user-avatar wp-user-avatar-25 alignnone photo\" /></a> <a class=\"url fn n\" href=\"" + response[i].Lang + "\">Serhat ÜR</a></span></span></div>"
+                                + "<div class=\"entry-content blog_post_text blog_post_description\">" + response[i].Content.substring(0,100) + " "
+                                + " <a href=\"" + response[i].Lang + "\" class=\"more_link more_link_dots\"> &hellip; </a></p></div><div class=\"blog_post_control clearfix\"><div class=\"blog_post_control_item blog_post_readmore\"><a href=\"" + response[i].Lang + "\" class=\"read_more_link\">Okumaya devam et</a></div></a></span></div></div></div></article>");
+                            }
+                            pageIndex++;
+                        }
+                        $("div#divLoading").addClass('show').remove();
+                    }
+                });
+            }
+        });
+    }
+</script>
